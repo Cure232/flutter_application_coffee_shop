@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
+import 'product.dart';
 
-void main() {
-  runApp(CoffeeApp());
+String productsJsonPath = "assets/products.json";
+List<Product> products = [];
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try
+  {
+    rootBundle.loadString(productsJsonPath).then((result) {
+    products = parseProducts(result);
+    runApp(CoffeeApp());
+  });
+  } catch (ex) {
+      rethrow;
+  }
+  
 }
 
 class CoffeeApp extends StatelessWidget {
@@ -19,6 +34,7 @@ class CoffeeApp extends StatelessWidget {
     );
   }
 }
+
 
 class CoffeeMenuScreen extends StatefulWidget {
   const CoffeeMenuScreen({super.key});
@@ -65,18 +81,14 @@ class CoffeeMenuScreenState extends State<CoffeeMenuScreen> {
 }
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   State<StatefulWidget> createState() => HomePageState();
 }
 
 class HomePageState extends State<HomePage> {
-  final List<Map<String, String>> products = [
-    {"name": "Латте яблочный пирог", "price": "290 р", "image": "assets/apple_latte.png"},
-    {"name": "Тыквенный латте", "price": "290 р", "image": "assets/pumpkin_latte.png"},
-    {"name": "Латте солёная карамель", "price": "290 р", "image": "assets/salt_latte.png"},
-  ];
-
-  final List<String> categories = ["Новинки", "Кофе с молоком", "Чёрный кофе"];
+  final List<String> categories = ["Новинки", "Популярное"];
   int selectedCategoryIndex = 0;
 
   final ScrollController _scrollController = ScrollController();
@@ -84,10 +96,11 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    super.initState();
-    for (int i = 0; i < categories.length; i++) {
-      _keys[i] = GlobalKey(); // Создаём уникальные ключи для каждого ChoiceChip
+    for (Product p in products)
+    {
+      categories.addAll(p.categories.where((category) => !categories.contains(category)));
     }
+    super.initState();
   }
 
   bool _isFullyVisible(int index) {
@@ -97,7 +110,7 @@ class HomePageState extends State<HomePage> {
     double itemLeft = renderBox.localToGlobal(Offset.zero).dx;
     double itemRight = itemLeft + renderBox.size.width;
 
-    RenderBox listBox = _scrollController.position.context.storageContext!.findRenderObject() as RenderBox;
+    RenderBox listBox = _scrollController.position.context.storageContext.findRenderObject() as RenderBox;
     double listLeft = listBox.localToGlobal(Offset.zero).dx;
     double listRight = listLeft + listBox.size.width;
 
@@ -114,19 +127,23 @@ class HomePageState extends State<HomePage> {
     _scrollController.animateTo(
       scrollOffset,
       duration: Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+      curve: Curves.easeOutSine,
     );
   }
 
   @override
   Widget build(BuildContext context)
   {
+    List<Product> selectedCategoryProducts = [];
+    selectedCategoryProducts.addAll(products.where((product) => product.categories.contains(categories[selectedCategoryIndex])));
+    
     return Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
+              //width: categories.length * 120,
               height: 50,
               child: ListView.builder(
                 controller: _scrollController,
@@ -134,9 +151,9 @@ class HomePageState extends State<HomePage> {
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 0.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
                     child: IntrinsicWidth(
-                      stepWidth: 0.0,
+                      stepWidth: 30.0,
                       child: ChoiceChip(
                         key: _keys[index],
                         label: Text(categories[index]),
@@ -145,12 +162,15 @@ class HomePageState extends State<HomePage> {
                         onSelected: (selected) {
                           setState(() {
                             selectedCategoryIndex = index;
+                            selectedCategoryProducts.clear();
+                            selectedCategoryProducts.addAll(products.where((product) => product.categories.contains(categories[selectedCategoryIndex])));
                             _scrollToSelected(index);
                           });
                         },
                         selectedColor: Colors.brown,
-                        labelStyle: TextStyle(
-                            color: selectedCategoryIndex == index ? Colors.white : Colors.black),
+                        labelStyle: TextStyle(color: selectedCategoryIndex == index ? Colors.white : Colors.black),
+                        labelPadding: const EdgeInsets.symmetric(horizontal: 6.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
                         ) //Choise Chip
                       ), // IntrinsicWidth
                   ); //Padding
@@ -165,27 +185,24 @@ class HomePageState extends State<HomePage> {
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
-                itemCount: products.length,
+                itemCount: selectedCategoryProducts.length,
                 itemBuilder: (context, index) {
                   return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(products[index]["image"]!, height: 100),
+                        Image.asset(selectedCategoryProducts[index].image, height: 100),
                         SizedBox(height: 2),
-                        Text(products[index]["name"]!,
+                        Text(selectedCategoryProducts[index].name,
                             textAlign: TextAlign.center,
                             style: TextStyle(fontWeight: FontWeight.bold),),
                         SizedBox(height: 2),
-                        Text(products[index]["price"]!, style: TextStyle(color: Colors.brown)),
+                        Text((selectedCategoryProducts[index].price.toString() + selectedCategoryProducts[index].currency), style: TextStyle(color: Colors.brown)),
                       ],
-                      
                     ), //Image and text
                   ); //Item card
-                },
+                }, // itemBuilder
               ), //GridView Builder
             ), //Expanded
           ], //Column children
@@ -195,6 +212,8 @@ class HomePageState extends State<HomePage> {
 }
 
 class FavoritesPages extends StatefulWidget{
+  const FavoritesPages({super.key});
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -203,6 +222,8 @@ class FavoritesPages extends StatefulWidget{
 }
 
 class CartPage extends StatefulWidget{
+  const CartPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
