@@ -1,27 +1,70 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'product.dart';
+import 'home_page.dart';
+import 'navigation_buttons.dart';
 
 String productsJsonPath = "assets/products.json";
 List<Product> products = [];
 
+class AppState with ChangeNotifier {
+  List<String> _categories = ["Новинки", "Популярное"];
+  int _selectedCategoryIndex = 0;
+  bool _noItemsInCategory = true;
+  List<Product> _selectedCategoryProducts = [];
+  int _selectedPage = 0;
+
+  List<String> get categories => _categories;
+  int get selectedCategoryIndex => _selectedCategoryIndex;
+  bool get noItemsInCategory => _noItemsInCategory;
+  List<Product> get selectedCategoryProducts => _selectedCategoryProducts;
+  int get selectedPage => _selectedPage;
+
+  AppState() {
+    for (Product p in products) {
+      _categories.addAll(p.categories.where((category) => !_categories.contains(category)));
+    }
+    _selectedCategoryProducts.addAll(products.where((product) => product.categories.contains(_categories[_selectedCategoryIndex])));
+  }
+
+  void selectCategory(int index) {
+    _selectedCategoryIndex = index;
+    _selectedCategoryProducts.clear();
+    _selectedCategoryProducts.addAll(products.where((product) => product.categories.contains(_categories[_selectedCategoryIndex])));
+    _noItemsInCategory = _selectedCategoryProducts.isEmpty;
+    notifyListeners();
+  }
+
+  void selectPage(int index) {
+    _selectedPage = index;
+    notifyListeners();
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try
-  {
+  try {
     rootBundle.loadString(productsJsonPath).then((result) {
-    products = parseProducts(result);
-    runApp(CoffeeApp());
-  });
+      products = parseProducts(result);
+      runApp(
+        ChangeNotifierProvider(
+          create: (_) => AppState(),
+          child: const CoffeeApp(),
+        ),
+      );
+    });
   } catch (ex) {
-      rethrow;
+    rethrow;
   }
-  
 }
 
 class CoffeeApp extends StatelessWidget {
   const CoffeeApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,203 +73,150 @@ class CoffeeApp extends StatelessWidget {
         textTheme: GoogleFonts.poppinsTextTheme(),
         primarySwatch: Colors.brown,
       ),
-      home: CoffeeMenuScreen(),
+      home: const CoffeeMenuScreen(),
     );
   }
 }
 
-
-class CoffeeMenuScreen extends StatefulWidget {
+class CoffeeMenuScreen extends StatelessWidget {
   const CoffeeMenuScreen({super.key});
 
   @override
-  CoffeeMenuScreenState createState() => CoffeeMenuScreenState();
-}
-
-class CoffeeMenuScreenState extends State<CoffeeMenuScreen> {
-  final List<Widget> _pages = [
-    HomePage(),
-    FavoritesPages(),
-    CartPage(),
-  ];
-  int _selectedPage = 0;  
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Кофейня", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        centerTitle: true,
-        backgroundColor: Colors.brown,
-      ),
-      body: _pages[_selectedPage],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedPage,
-        selectedItemColor: Colors.brown,
-        unselectedItemColor: Colors.grey,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Главная"),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Избранное"),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: "Корзина"),
+    final appState = Provider.of<AppState>(context);
+    final List<Widget> pages = [
+      const HomePage(),
+      const FavoritesPages(),
+      const CartPage(),
+    ];
+
+    return Material(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image(
+            image: const AssetImage("assets/images/home_bg.jpg"),
+            fit: BoxFit.fitWidth,
+            alignment: Alignment.topCenter,
+          ),
+          IndexedStack(
+            index: appState.selectedPage,
+            children: pages.map((page) {
+              return CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    backgroundColor: Colors.transparent,
+                    pinned: false,
+                    stretch: true,
+                    collapsedHeight: 60,
+                    expandedHeight: 300,
+                    leading: IconButton(
+                      padding: const EdgeInsets.all(5),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.white),
+                        shape: WidgetStateProperty.all(const CircleBorder()),
+                      ),
+                      icon: const Icon(
+                        Icons.location_on_outlined,
+                        color: Colors.brown,
+                      ),
+                      onPressed: () {
+                        print('Location pressed');
+                      },
+                    ),
+                    actions: [
+                      IconButton(
+                        padding: const EdgeInsets.all(5),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(Colors.white),
+                          shape: WidgetStateProperty.all(const CircleBorder()),
+                        ),
+                        icon: const Icon(
+                          Icons.person_outline_outlined,
+                          color: Colors.brown,
+                        ),
+                        onPressed: () {
+                          print('Profile pressed');
+                        },
+                      ),
+                    ],
+                    title: const Text(
+                      'Революционная 101А',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        color: Colors.white,
+                        shadows: [Shadow(color: Colors.black, offset: Offset(2, 2))],
+                        fontSize: 24,
+                      ),
+                    ),
+                  ),
+                  if (page is HomePage) page else SliverToBoxAdapter(child: page),
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    fillOverscroll: true,
+                    child: ColoredBox(color: Colors.white),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                MenuNavigationButton(
+                  icon: Icons.home,
+                  isSelected: appState.selectedPage == 0,
+                  onTap: () {
+                    appState.selectPage(0);
+                  },
+                ),
+                const SizedBox(width: 20),
+                MenuNavigationButton(
+                  icon: Icons.favorite,
+                  isSelected: appState.selectedPage == 1,
+                  onTap: () {
+                    appState.selectPage(1);
+                  },
+                ),
+                const SizedBox(width: 20),
+                MenuNavigationButton(
+                  icon: Icons.shopping_cart,
+                  isSelected: appState.selectedPage == 2,
+                  onTap: () {
+                    appState.selectPage(2);
+                  },
+                ),
+              ],
+            ),
+          ),
         ],
-        onTap: (value) {
-          setState(() {
-            _selectedPage = value;
-          });
-        }, //onTap
-      ), //bottomNavigationBar
-    ); //Scaffold
-  } //build
-
-}
-
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<StatefulWidget> createState() => HomePageState();
-}
-
-class HomePageState extends State<HomePage> {
-  final List<String> categories = ["Новинки", "Популярное"];
-  int selectedCategoryIndex = 0;
-
-  final ScrollController _scrollController = ScrollController();
-  final Map<int, GlobalKey> _keys = {}; // Храним ключи для каждого элемента
-
-  @override
-  void initState() {
-    for (Product p in products)
-    {
-      categories.addAll(p.categories.where((category) => !categories.contains(category)));
-    }
-    super.initState();
-  }
-
-  bool _isFullyVisible(int index) {
-    if (!_keys.containsKey(index) || _keys[index]!.currentContext == null) return false;
-
-    RenderBox renderBox = _keys[index]!.currentContext!.findRenderObject() as RenderBox;
-    double itemLeft = renderBox.localToGlobal(Offset.zero).dx;
-    double itemRight = itemLeft + renderBox.size.width;
-
-    RenderBox listBox = _scrollController.position.context.storageContext.findRenderObject() as RenderBox;
-    double listLeft = listBox.localToGlobal(Offset.zero).dx;
-    double listRight = listLeft + listBox.size.width;
-
-    return itemLeft >= listLeft && itemRight <= listRight;
-  }
-
-  void _scrollToSelected(int index) {
-    if (_isFullyVisible(index)) return; // Если уже видно, не скроллим
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double itemWidth = 120.0; // Примерная ширина одного ChoiceChip
-    double scrollOffset = (index * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
-
-    _scrollController.animateTo(
-      scrollOffset,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeOutSine,
+      ),
     );
   }
-
-  @override
-  Widget build(BuildContext context)
-  {
-    List<Product> selectedCategoryProducts = [];
-    selectedCategoryProducts.addAll(products.where((product) => product.categories.contains(categories[selectedCategoryIndex])));
-    
-    return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              //width: categories.length * 120,
-              height: 50,
-              child: ListView.builder(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-                    child: IntrinsicWidth(
-                      stepWidth: 30.0,
-                      child: ChoiceChip(
-                        key: _keys[index],
-                        label: Text(categories[index]),
-                        selected: selectedCategoryIndex == index,
-                        showCheckmark: false,
-                        onSelected: (selected) {
-                          setState(() {
-                            selectedCategoryIndex = index;
-                            selectedCategoryProducts.clear();
-                            selectedCategoryProducts.addAll(products.where((product) => product.categories.contains(categories[selectedCategoryIndex])));
-                            _scrollToSelected(index);
-                          });
-                        },
-                        selectedColor: Colors.brown,
-                        labelStyle: TextStyle(color: selectedCategoryIndex == index ? Colors.white : Colors.black),
-                        labelPadding: const EdgeInsets.symmetric(horizontal: 6.0),
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        ) //Choise Chip
-                      ), // IntrinsicWidth
-                  ); //Padding
-                }, //ItemBuilder
-              ),
-            ), //Topbar SizedBox
-            SizedBox(height: 20),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: selectedCategoryProducts.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(selectedCategoryProducts[index].image, height: 100),
-                        SizedBox(height: 2),
-                        Text(selectedCategoryProducts[index].name,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontWeight: FontWeight.bold),),
-                        SizedBox(height: 2),
-                        Text((selectedCategoryProducts[index].price.toString() + selectedCategoryProducts[index].currency), style: TextStyle(color: Colors.brown)),
-                      ],
-                    ), //Image and text
-                  ); //Item card
-                }, // itemBuilder
-              ), //GridView Builder
-            ), //Expanded
-          ], //Column children
-        ), //Column
-      ); // Padding
-  }
 }
 
-class FavoritesPages extends StatefulWidget{
+class FavoritesPages extends StatelessWidget {
   const FavoritesPages({super.key});
 
   @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    throw UnimplementedError();
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text("Страница избранного (в разработке)"),
+    );
   }
 }
 
-class CartPage extends StatefulWidget{
+class CartPage extends StatelessWidget {
   const CartPage({super.key});
 
   @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    throw UnimplementedError();
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text("Страница корзины (в разработке)"),
+    );
   }
 }

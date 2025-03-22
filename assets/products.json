@@ -29,6 +29,96 @@
             "price": 290,
             "currency": "р",
             "image": "assets/images/salted_caramel.png"
+        },
+        {
+            "name": "Латте яблочный пирог",
+            "categories": [
+                "Новинки",
+                "Кофе с молоком"
+            ],
+            "is_favorite": true,
+            "price": 290,
+            "currency": "р",
+            "image": "assets/images/apple_latte.png"
+        },
+        {
+            "name": "Тыквенный латте",
+            "categories": ["Кофе с молоком"],
+            "is_favorite": false,
+            "price": 290,
+            "currency": "р",
+            "image": "assets/images/pumpkin_latte.png"
+        },
+        {
+            "name": "Латте солёная карамель",
+            "categories": [
+                "Новинки",
+                "Чёрный кофе"
+            ],
+            "is_favorite": false,
+            "price": 290,
+            "currency": "р",
+            "image": "assets/images/salted_caramel.png"
+        },
+        {
+            "name": "Латте яблочный пирог",
+            "categories": [
+                "Новинки",
+                "Кофе с молоком"
+            ],
+            "is_favorite": true,
+            "price": 290,
+            "currency": "р",
+            "image": "assets/images/apple_latte.png"
+        },
+        {
+            "name": "Тыквенный латте",
+            "categories": ["Кофе с молоком"],
+            "is_favorite": false,
+            "price": 290,
+            "currency": "р",
+            "image": "assets/images/pumpkin_latte.png"
+        },
+        {
+            "name": "Латте солёная карамель",
+            "categories": [
+                "Новинки",
+                "Чёрный кофе"
+            ],
+            "is_favorite": false,
+            "price": 290,
+            "currency": "р",
+            "image": "assets/images/salted_caramel.png"
+        },
+        {
+            "name": "Латте яблочный пирог",
+            "categories": [
+                "Новинки",
+                "Кофе с молоком"
+            ],
+            "is_favorite": true,
+            "price": 290,
+            "currency": "р",
+            "image": "assets/images/apple_latte.png"
+        },
+        {
+            "name": "Тыквенный латте",
+            "categories": ["Кофе с молоком"],
+            "is_favorite": false,
+            "price": 290,
+            "currency": "р",
+            "image": "assets/images/pumpkin_latte.png"
+        },
+        {
+            "name": "Латте солёная карамель",
+            "categories": [
+                "Новинки",
+                "Чёрный кофе"
+            ],
+            "is_favorite": false,
+            "price": 290,
+            "currency": "р",
+            "image": "assets/images/salted_caramel.png"
         }
     ]
 }
