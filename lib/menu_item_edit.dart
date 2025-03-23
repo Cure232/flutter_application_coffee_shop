@@ -26,7 +26,7 @@ class CustomChoiceChip extends StatelessWidget {
       label: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children:  [
-          selected ? ImageFiltered(imageFilter:  ColorFilter.mode(Colors.transparent, BlendMode.xor), child: ImageFiltered(imageFilter: ColorFilter.mode(Colors.white, BlendMode.saturation), child: image,)) : image,
+          selected ? image : image,
           Container(margin: EdgeInsets.only(bottom: 10), child: Text(label),)
         ],
       ),
@@ -64,13 +64,7 @@ class ItemEditScreen extends StatefulWidget {
 
 
 class _ItemEditScreenState extends State<ItemEditScreen> {
-  String selectedSize = 'Средний';
   bool addSyrup = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +82,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Изображение и наложение
-                Container(
+                SizedBox(
                   height: 360,
                   width: double.infinity,
                   child: ClipRRect(
@@ -136,12 +130,9 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                               decoration: const BoxDecoration(
                                 color: Colors.transparent,
                               ),
-                              child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                                child: Container(
-                                  color: Colors.white.withOpacity(0.2), // Полупрозрачный цвет для эффекта
-                                  child: Center(child: Text(widget._product.name)),
-                                ),
+                              child: Container(
+                                color: Colors.white.withOpacity(0.2), // Полупрозрачный цвет для эффекта
+                                child: Center(child: Text(widget._product.name)),
                               ),
                             ),
                           ),
@@ -174,7 +165,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                               CustomChoiceChip(
                                 label: "Маленький",
                                 image: Image.asset("assets/images/icons/big_coffee_unselected.png", height: 20),
-                                selected: appState.selectedSize == 0,
+                                selected:  appState.selectedSize == 0,
                                 onSelected: (bool selected) {
                                   appState.selectItemSize(0);
                                 },
