@@ -17,12 +17,16 @@ class AppState with ChangeNotifier {
   bool _noItemsInCategory = true;
   List<Product> _selectedCategoryProducts = [];
   int _selectedPage = 0;
+  int _selectedSize = 0;
+  int _itemAmount = 1;
 
   List<String> get categories => _categories;
   int get selectedCategoryIndex => _selectedCategoryIndex;
   bool get noItemsInCategory => _noItemsInCategory;
   List<Product> get selectedCategoryProducts => _selectedCategoryProducts;
   int get selectedPage => _selectedPage;
+  int get itemAmount => _itemAmount;
+  int get selectedSize => _selectedSize;
 
   AppState() {
     for (Product p in products) {
@@ -41,6 +45,28 @@ class AppState with ChangeNotifier {
 
   void selectPage(int index) {
     _selectedPage = index;
+    notifyListeners();
+  }
+
+  void increaseItemAmount(int toAdd) {
+    _itemAmount += toAdd;
+    notifyListeners();
+  }
+
+  void decreaseItemAmount(int toRetract) {
+    _itemAmount -= toRetract;
+    notifyListeners();
+  }
+
+  void resetItemAmount ()
+  {
+    _itemAmount = 1;
+    notifyListeners();
+  }
+
+  void selectItemSize (int size)
+  {
+    _selectedSize = size;
     notifyListeners();
   }
 }
@@ -86,7 +112,7 @@ class CoffeeMenuScreen extends StatelessWidget {
     final appState = Provider.of<AppState>(context);
     final List<Widget> pages = [
       const HomePage(),
-      const FavoritesPages(),
+      const FavoritesPage(),
       const CartPage(),
     ];
 
@@ -199,8 +225,8 @@ class CoffeeMenuScreen extends StatelessWidget {
   }
 }
 
-class FavoritesPages extends StatelessWidget {
-  const FavoritesPages({super.key});
+class FavoritesPage extends StatelessWidget {
+  const FavoritesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
