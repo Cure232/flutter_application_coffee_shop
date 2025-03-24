@@ -5,19 +5,21 @@ import 'package:flutter_application_coffee_shop/main.dart';
 import 'package:flutter_application_coffee_shop/product.dart';
 import 'package:provider/provider.dart';
 
+final String imageSelected = "assets/images/icons/medium_coffee_selected.png";
+final String imageUnselected = "assets/images/icons/big_coffee_unselected.png";
 
 class CustomChoiceChip extends StatelessWidget {
   final String label;
   final bool selected;
   final ValueChanged<bool> onSelected;
-  final Image image;
+  final double imageHeight;
 
-  const CustomChoiceChip({
+  CustomChoiceChip({
     Key? key,
     required this.label,
-    required this.image,
     required this.selected,
     required this.onSelected,
+    required this.imageHeight,
   }) : super(key: key);
 
   @override
@@ -26,7 +28,7 @@ class CustomChoiceChip extends StatelessWidget {
       label: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children:  [
-          selected ? image : image,
+          selected ? Image(image: AssetImage(imageSelected), height: imageHeight,) : Image(image: AssetImage(imageUnselected), height: imageHeight,),
           SizedBox(height: 6,),
           Container(margin: EdgeInsets.only(bottom: 12), child: Text(label),)
         ],
@@ -42,9 +44,9 @@ class CustomChoiceChip extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.w500,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Внутренние отступы
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Внутренние отступы
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(24)), // Скругленные углы
+        borderRadius: BorderRadius.all(Radius.circular(26)), // Скругленные углы
         side: BorderSide(color: Colors.transparent, width: 0), // Граница
       ),
     );
@@ -66,10 +68,13 @@ class ItemEditScreen extends StatefulWidget {
 
 class _ItemEditScreenState extends State<ItemEditScreen> {
   bool addSyrup = false;
+  int itemAmount = 1;
+  String selectedSize = "300 мл";
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+
     return Material(
       child: Stack(
         fit: StackFit.expand,
@@ -100,19 +105,25 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                         Positioned(
                           top: 16,
                           left: 16,
-                          child: IconButton(
-                            icon: const Icon(Icons.arrow_back, color: Colors.white),
-                            onPressed: () => Navigator.pop(context),
+                          child: Container(
+                            decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                            child: IconButton(
+                              icon: const Icon(Icons.arrow_back, color: Colors.brown),
+                              onPressed: () => Navigator.pop(context),
+                            ),
                           ),
                         ),
                         Positioned(
                           top: 16,
                           right: 16,
-                          child: IconButton(
-                            icon: const Icon(Icons.favorite_border, color: Colors.white),
-                            onPressed: () {
-                              // Логика добавления в избранное
-                            },
+                          child: Container(
+                            decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                            child: IconButton(
+                              icon: widget._product.isFavorite ? const Icon(Icons.favorite, color: Colors.brown) : const Icon(Icons.favorite_border_outlined, color: Colors.brown),
+                              onPressed: () {
+                                appState.changeFavoriteStatus(widget._product);
+                              },
+                            ),
                           ),
                         ),
                         // Название продукта
@@ -132,8 +143,8 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                 color: Colors.transparent,
                               ),
                               child: Container(
-                                color: Colors.white.withOpacity(0.2), // Полупрозрачный цвет для эффекта
-                                child: Center(child: Text(widget._product.name)),
+                                color: Colors.white.withOpacity(0.3), // Полупрозрачный цвет для эффекта
+                                child: Center(child: Text(widget._product.name, style: TextStyle(fontSize: 24, color: Colors.black),)),
                               ),
                             ),
                           ),
@@ -149,13 +160,14 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(height: 10,),
                         Center(
                           child: const Text(
                             'Выберите размер',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                           ),
                         ),
-                        SizedBox(height: 20,),
+                        SizedBox(height: 10,),
                         Center(
                           child: Container(
                             height: 90,
@@ -170,26 +182,32 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                 children: [
                                   CustomChoiceChip(
                                     label: "200 мл",
-                                    image: Image.asset("assets/images/icons/big_coffee_unselected.png", height: 20),
-                                    selected:  appState.selectedSize == 0,
+                                    imageHeight: 20,
+                                    selected:  selectedSize == "200 мл",
                                     onSelected: (bool selected) {
-                                      appState.selectItemSize(0);
+                                      setState(() {
+                                        selectedSize = "200 мл";
+                                      });
                                     },
                                   ),
                                   CustomChoiceChip(
                                     label: "300 мл",
-                                    image: Image.asset("assets/images/icons/big_coffee_unselected.png", height: 33,),
-                                    selected: appState.selectedSize == 1,
+                                    imageHeight: 30,
+                                    selected: selectedSize == "300 мл",
                                     onSelected: (bool selected) {
-                                      appState.selectItemSize(1);
+                                      setState(() {
+                                        selectedSize = "300 мл";
+                                      });
                                     },
                                   ),
                                   CustomChoiceChip(
-                                    label: '400 мл',
-                                    image: Image.asset("assets/images/icons/big_coffee_unselected.png", height: 40,),
-                                    selected: appState.selectedSize == 2,
+                                    label: "400 мл",
+                                    imageHeight: 40,
+                                    selected: selectedSize == "400 мл",
                                     onSelected: (bool selected) {
-                                      appState.selectItemSize(2);
+                                      setState(() {
+                                        selectedSize = "400 мл";
+                                      });
                                     },
                                   ),
                                 ],
@@ -206,27 +224,71 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Выберите сироп',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      Center(
+                        child: const Text(
+                          'Выберите сироп',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        ),
                       ),
-                      IconButton(
-                        icon:  Icon(Icons.add),
-                        onPressed: () {
-                          BottomSheet(
-                            backgroundColor: Colors.white,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.only(left: 20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 5, offset: Offset(0, 2))],
+                                  borderRadius: BorderRadius.all(Radius.circular(30))
+                                ),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  spacing: 30,
+                                  children: [
+                                    Transform.scale(scale: 3, child: Icon(Icons.apple)),
+                                    Center(child: Container(width: 100, child: Text("Яблочный сироп", softWrap: true, overflow: TextOverflow.visible,)))
+                                  ],
+                                ),
                               ),
-                            ),
-                            builder: bottomSheetBuilder,
-                            onClosing: () {
-                              
-                            },
-                          );
-                        },
+                              Container(
+                                padding: EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 5, offset: Offset(0, 2))],
+                                  borderRadius: BorderRadius.all(Radius.circular(30))
+                                ),
+                                alignment: Alignment.center,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.brown),
+                                      child: IconButton(
+                                        icon:  Icon(Icons.add, color: Colors.white,),
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            backgroundColor: Colors.white,
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(20),
+                                                topRight: Radius.circular(20),
+                                              ),
+                                            ),
+                                            builder: bottomSheetBuilder,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    Text("Добавить сироп")
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -241,45 +303,56 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
           //Цена и кол-во
           Positioned(
             bottom: 40, left: 40, right: 40,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.brown,
-                borderRadius: BorderRadius.all(Radius.circular(30)),
+            child: GestureDetector(
+              onTap: () {
+                CartItem c = CartItem(product: widget._product, quantity: itemAmount, addedSyrups: ["Яблочный"], size: selectedSize);
+                appState.addToCart(c);
+                Navigator.pop(context);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.brown,
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(padding: EdgeInsets.only(left: 20), child: Text(
+                      '${widget._product.prices[selectedSize]} ₽',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
+                    Icon(Icons.shopping_cart, color: Colors.white,),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(30)),
+                      ),
+                      margin: EdgeInsets.all(8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          IconButton(onPressed: () => {
+                              if (itemAmount > 1) setState(() {
+                                itemAmount -= 1;
+                              })
+                            },
+                            icon: Icon(Icons.remove),
+                            color: Colors.brown
+                          ),
+                          Container(width: 30, alignment: Alignment.center, padding: EdgeInsets.only(right: 3), child: Text(itemAmount.toString(), style: TextStyle(color: Colors.brown),)),
+                          IconButton(onPressed: () => setState(() {
+                            itemAmount += 1;
+                          }), icon: Icon(Icons.add), color: Colors.brown)
+                        ],
+                      )
+                    ),
+                  ],
+                )
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(padding: EdgeInsets.only(left: 20), child: Text(
-                    '${widget._product.price} ₽',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )),
-                  Icon(Icons.wallet_giftcard, color: Colors.white,),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(30)),
-                    ),
-                    margin: EdgeInsets.all(8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        IconButton(onPressed: () => {
-                            if (appState.itemAmount > 1) appState.decreaseItemAmount(1)
-                          },
-                          icon: Icon(Icons.remove),
-                          color: Colors.brown
-                        ),
-                        Padding(padding: EdgeInsets.only(left: 10, right: 13), child: Text(appState.itemAmount.toString(), style: TextStyle(color: Colors.brown),)),
-                        IconButton(onPressed: () => appState.increaseItemAmount(1), icon: Icon(Icons.add), color: Colors.brown)
-                      ],
-                    )
-                  ),
-                ],
-              )
             )
           )
 
@@ -290,11 +363,23 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
 }
 
 Widget bottomSheetBuilder(BuildContext context) {
-  return Stack(
-    children: [
-      SingleChildScrollView(
-        //child: GridView(gridDelegate: Grid),
-      )
-    ],
+  return Container(
+    width: double.infinity,
+    height: double.maxFinite,
+    child: Stack(
+      children: [
+        Positioned(
+          top: 16,
+          left: 16,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.brown),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        SingleChildScrollView(
+          child: Icon(Icons.abc_outlined),
+        )
+      ],
+    ),
   );
 }

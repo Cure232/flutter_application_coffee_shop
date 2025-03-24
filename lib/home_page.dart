@@ -13,32 +13,7 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
-  final Map<int, GlobalKey> _keys = {};
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final appState = Provider.of<AppState>(context, listen: false);
-      for (int i = 0; i < appState.categories.length; i++) {
-        _keys[i] = GlobalKey();
-      }
-    });
-  }
-
-  bool _isFullyVisible(int index) {
-    if (!_keys.containsKey(index) || _keys[index]!.currentContext == null) return false;
-
-    RenderBox renderBox = _keys[index]!.currentContext!.findRenderObject() as RenderBox;
-    double itemLeft = renderBox.localToGlobal(Offset.zero).dx;
-    double itemRight = itemLeft + renderBox.size.width;
-
-    RenderBox listBox = _scrollController.position.context.storageContext.findRenderObject() as RenderBox;
-    double listLeft = listBox.localToGlobal(Offset.zero).dx;
-    double listRight = listLeft + listBox.size.width;
-
-    return itemLeft >= listLeft && itemRight <= listRight;
-  }
 
   void _scrollToSelected(int index) {
     //if (_isFullyVisible(index)) return;
@@ -81,7 +56,6 @@ class HomePageState extends State<HomePage> {
                     child: IntrinsicWidth(
                       stepWidth: 30.0,
                       child: ChoiceChip(
-                        key: _keys[index],
                         label: Text(appState.categories[index]),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         selected: appState.selectedCategoryIndex == index,
@@ -135,7 +109,7 @@ class HomePageState extends State<HomePage> {
                           elevation: 4,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(height: 4,),
                               Image.asset(appState.selectedCategoryProducts[index].image),
@@ -152,7 +126,7 @@ class HomePageState extends State<HomePage> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                    (appState.selectedCategoryProducts[index].price.toString() + appState.selectedCategoryProducts[index].currency),
+                                    (appState.selectedCategoryProducts[index].prices["300 мл"]! + appState.selectedCategoryProducts[index].currency),
                                     style: TextStyle(color: Colors.brown),
                                     ),
                                     Icon(Icons.arrow_forward_ios, color: Colors.brown)

@@ -1,10 +1,11 @@
+import 'dart:collection';
 import 'dart:convert';
 
 class Product {
   final String name;
   final List<String> categories;
-  final bool isFavorite;
-  final int price;
+  bool isFavorite;
+  final HashMap<String, String> prices; // Указываем типы для HashMap
   final String currency;
   final String image;
   final String description;
@@ -13,7 +14,7 @@ class Product {
     required this.name,
     required this.categories,
     required this.isFavorite,
-    required this.price,
+    required this.prices,
     required this.currency,
     required this.image,
     this.description = "",
@@ -21,13 +22,25 @@ class Product {
 
   // Десериализация из JSON
   factory Product.fromJson(Map<String, dynamic> json) {
+    // Проверяем обязательные поля и приводим типы
+    final name = json['name'] as String? ?? '';
+    final categories = (json['categories'] as List<dynamic>?)?.cast<String>() ?? [];
+    final isFavorite = json['is_favorite'] as bool? ?? false;
+    final pricesMap = (json['prices'] as Map<String, dynamic>?)?.map(
+          (key, value) => MapEntry(key, value.toString()),
+    ) ?? {};
+    final currency = json['currency'] as String? ?? '';
+    final image = json['image'] as String? ?? '';
+    final description = json['description'] as String? ?? '';
+
     return Product(
-      name: json['name'],
-      categories: List<String>.from(json['categories']),
-      isFavorite: json['is_favorite'],
-      price: json['price'],
-      currency: json['currency'],
-      image: json['image'],
+      name: name,
+      categories: categories,
+      isFavorite: isFavorite,
+      prices: HashMap<String, String>.from(pricesMap),
+      currency: currency,
+      image: image,
+      description: description,
     );
   }
 
@@ -35,35 +48,38 @@ class Product {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'categories': categories, // Сохраняем как список
+      'categories': categories,
       'is_favorite': isFavorite,
-      'price': price,
+      'prices': prices, // HashMap автоматически сериализуется как Map
       'currency': currency,
       'image': image,
+      'description': description,
     };
   }
 
   @override
   String toString() {
-    return 'Product(name: $name, categories: $categories, is_favorite: $isFavorite, price: $price, currency: $currency, image: $image)';
+    return 'Product(name: $name, categories: $categories, isFavorite: $isFavorite, prices: $prices, currency: $currency, image: $image, description: $description)';
   }
 }
 
 List<Product> parseProducts(String jsonString) {
   final Map<String, dynamic> jsonData = jsonDecode(jsonString);
-  final List<dynamic> jsonList = jsonData['products'];
+  final List<dynamic> jsonList = jsonData['products'] ?? [];
 
-  return jsonList.map((json) => Product.fromJson(json)).toList();
+  return jsonList.map((json) => Product.fromJson(json as Map<String, dynamic>)).toList();
 }
 
 class CartItem {
   final Product product;
   int quantity;
+  String size;
   List<String>? addedSyrups;
 
   CartItem({
     required this.product,
-    this.quantity = 1,
-    this.addedSyrups
+    required this.size,
+    required this.quantity,
+    this.addedSyrups,
   });
 }

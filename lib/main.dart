@@ -4,38 +4,60 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
+import 'cart_page.dart';
 import 'product.dart';
 import 'home_page.dart';
 import 'navigation_buttons.dart';
+import 'favorites_page.dart';
 
 String productsJsonPath = "assets/products.json";
-List<Product> products = [];
+String jsonResult = "";
 
 class AppState with ChangeNotifier {
+  List<Product> _products = [];
+
   List<String> _categories = ["Новинки", "Популярное"];
   int _selectedCategoryIndex = 0;
   bool _noItemsInCategory = true;
   List<Product> _selectedCategoryProducts = [];
+
   int _selectedPage = 0;
-  int _selectedSize = 0;
+  String _selectedSize = "300 мл";
   int _itemAmount = 1;
+
+  List<Product> _favoriteProducts = [];
   List<CartItem> _cartItems = [];
+  int _cartSum = 0;
+
+
+  List<Product> get products => _products;
 
   List<String> get categories => _categories;
   int get selectedCategoryIndex => _selectedCategoryIndex;
   bool get noItemsInCategory => _noItemsInCategory;
   List<Product> get selectedCategoryProducts => _selectedCategoryProducts;
+
   int get selectedPage => _selectedPage;
   int get itemAmount => _itemAmount;
-  int get selectedSize => _selectedSize;
-  List<CartItem> get cartItems => _cartItems;
+  String get selectedSize => _selectedSize;
 
-  AppState() {
-    for (Product p in products) {
+  get favoriteProducts => _favoriteProducts;
+  List<CartItem> get cartItems => _cartItems;
+  int get cartSum => _cartSum;
+
+  
+
+  AppState(List<Product> products) {
+    _products = products;
+    _favoriteProducts.addAll(_products.where((p) => p.isFavorite));
+
+    for (Product p in _products) {
       _categories.addAll(p.categories.where((category) => !_categories.contains(category)));
     }
     _selectedCategoryProducts.addAll(products.where((product) => product.categories.contains(_categories[_selectedCategoryIndex])));
   }
+
 
   void selectCategory(int index) {
     _selectedCategoryIndex = index;
@@ -50,37 +72,58 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
-  void increaseItemAmount(int toAdd) {
-    _itemAmount += toAdd;
-    notifyListeners();
-  }
-
-  void decreaseItemAmount(int toRetract) {
-    _itemAmount -= toRetract;
-    notifyListeners();
-  }
-
-  void resetItemAmount ()
+  void changeFavoriteStatus (Product product)
   {
-    _itemAmount = 1;
+    for (Product p in _products)
+    {
+      if (p.name == product.name) {
+        if (p.isFavorite)
+        {
+          _favoriteProducts.remove(p);
+          p.isFavorite = false;
+        } else {
+          p.isFavorite = true;
+          _favoriteProducts.add(p);
+        }
+        
+      }
+    }
     notifyListeners();
   }
 
-  void selectItemSize (int size)
-  {
-    _selectedSize = size;
+  void addToCart(CartItem cartItem) {
+    bool not_added = true;
+    for (CartItem c in _cartItems)
+    {
+      if (c.product.name == cartItem.product.name)
+      {
+        if (c.size == cartItem.size && c.addedSyrups.toString() == cartItem.addedSyrups.toString()) {
+          c.quantity += cartItem.quantity;
+          _cartSum += cartItem.quantity * int.parse(c.product.prices[c.size]!);
+          not_added = false;
+          break;
+        }
+      }
+    }
+    if (not_added) {
+      _cartItems.add(cartItem);
+      _cartSum += cartItem.quantity * int.parse(cartItem.product.prices[cartItem.size]!);
+    }
     notifyListeners();
   }
+
 }
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     rootBundle.loadString(productsJsonPath).then((result) {
-      products = parseProducts(result);
+      List<Product> products = parseProducts(result);
       runApp(
         ChangeNotifierProvider(
-          create: (_) => AppState(),
+          create: (_) => AppState(products),
           child: const CoffeeApp(),
         ),
       );
@@ -112,6 +155,7 @@ class CoffeeMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    
     final List<Widget> pages = [
       const HomePage(),
       const FavoritesPage(),
@@ -178,7 +222,7 @@ class CoffeeMenuScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (page is HomePage) page else SliverToBoxAdapter(child: page),
+                  page,
                   const SliverFillRemaining(
                     hasScrollBody: false,
                     fillOverscroll: true,
@@ -232,28 +276,6 @@ class CoffeeMenuScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class FavoritesPage extends StatelessWidget {
-  const FavoritesPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text("Страница избранного (в разработке)"),
-    );
-  }
-}
-
-class CartPage extends StatelessWidget {
-  const CartPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text("Страница корзины (в разработке)"),
     );
   }
 }
