@@ -7,6 +7,7 @@ class Product {
   final int price;
   final String currency;
   final String image;
+  final String description;
 
   Product({
     required this.name,
@@ -15,6 +16,7 @@ class Product {
     required this.price,
     required this.currency,
     required this.image,
+    this.description = "",
   });
 
   // Десериализация из JSON
@@ -52,4 +54,16 @@ List<Product> parseProducts(String jsonString) {
   final List<dynamic> jsonList = jsonData['products'];
 
   return jsonList.map((json) => Product.fromJson(json)).toList();
+}
+
+class CartItem {
+  final Product product;
+  int quantity;
+  List<String>? addedSyrups;
+
+  CartItem({
+    required this.product,
+    this.quantity = 1,
+    this.addedSyrups
+  });
 }

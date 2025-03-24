@@ -19,6 +19,7 @@ class AppState with ChangeNotifier {
   int _selectedPage = 0;
   int _selectedSize = 0;
   int _itemAmount = 1;
+  List<CartItem> _cartItems = [];
 
   List<String> get categories => _categories;
   int get selectedCategoryIndex => _selectedCategoryIndex;
@@ -27,6 +28,7 @@ class AppState with ChangeNotifier {
   int get selectedPage => _selectedPage;
   int get itemAmount => _itemAmount;
   int get selectedSize => _selectedSize;
+  List<CartItem> get cartItems => _cartItems;
 
   AppState() {
     for (Product p in products) {
@@ -187,36 +189,45 @@ class CoffeeMenuScreen extends StatelessWidget {
             }).toList(),
           ),
           Positioned(
-            left: 0,
-            right: 0,
+            left: 80,
+            right: 80,
             bottom: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                MenuNavigationButton(
-                  icon: Icons.home,
-                  isSelected: appState.selectedPage == 0,
-                  onTap: () {
-                    appState.selectPage(0);
-                  },
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.brown.withOpacity(0.9),
+                  borderRadius: BorderRadius.all(Radius.circular(30))
                 ),
-                const SizedBox(width: 20),
-                MenuNavigationButton(
-                  icon: Icons.favorite,
-                  isSelected: appState.selectedPage == 1,
-                  onTap: () {
-                    appState.selectPage(1);
-                  },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    MenuNavigationButton(
+                      icon: Icons.home,
+                      isSelected: appState.selectedPage == 0,
+                      onTap: () {
+                        appState.selectPage(0);
+                      },
+                    ),
+                    const SizedBox(width: 20),
+                    MenuNavigationButton(
+                      icon: Icons.favorite,
+                      isSelected: appState.selectedPage == 1,
+                      onTap: () {
+                        appState.selectPage(1);
+                      },
+                    ),
+                    const SizedBox(width: 20),
+                    MenuNavigationButton(
+                      icon: Icons.shopping_cart,
+                      isSelected: appState.selectedPage == 2,
+                      onTap: () {
+                        appState.selectPage(2);
+                      },
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 20),
-                MenuNavigationButton(
-                  icon: Icons.shopping_cart,
-                  isSelected: appState.selectedPage == 2,
-                  onTap: () {
-                    appState.selectPage(2);
-                  },
-                ),
-              ],
+              ),
             ),
           ),
         ],

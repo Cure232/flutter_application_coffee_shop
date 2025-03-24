@@ -24,10 +24,11 @@ class CustomChoiceChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChoiceChip(
       label: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.end,
         children:  [
           selected ? image : image,
-          Container(margin: EdgeInsets.only(bottom: 10), child: Text(label),)
+          SizedBox(height: 6,),
+          Container(margin: EdgeInsets.only(bottom: 12), child: Text(label),)
         ],
       ),
       selected: selected,
@@ -43,7 +44,7 @@ class CustomChoiceChip extends StatelessWidget {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Внутренние отступы
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(26)), // Скругленные углы
+        borderRadius: BorderRadius.all(Radius.circular(24)), // Скругленные углы
         side: BorderSide(color: Colors.transparent, width: 0), // Граница
       ),
     );
@@ -142,56 +143,63 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                   ),
                 ),
                 // Выбор размера
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Выберите размер',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                      ),
-                      Container(
-                        height: 90,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
-                          border: Border.all(color: Colors.brown, width: 4),
-                        ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CustomChoiceChip(
-                                label: "Маленький",
-                                image: Image.asset("assets/images/icons/big_coffee_unselected.png", height: 20),
-                                selected:  appState.selectedSize == 0,
-                                onSelected: (bool selected) {
-                                  appState.selectItemSize(0);
-                                },
-                              ),
-                              CustomChoiceChip(
-                                label: "Средний",
-                                image: Image.asset("assets/images/icons/big_coffee_unselected.png", height: 30,),
-                                selected: appState.selectedSize == 1,
-                                onSelected: (bool selected) {
-                                  appState.selectItemSize(1);
-                                },
-                              ),
-                              CustomChoiceChip(
-                                label: 'Большой',
-                                image: Image.asset("assets/images/icons/big_coffee_unselected.png", height: 40,),
-                                selected: appState.selectedSize == 2,
-                                onSelected: (bool selected) {
-                                  appState.selectItemSize(2);
-                                },
-                              ),
-                            ],
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: const Text(
+                            'Выберите размер',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                           ),
-                        )    
-                      ],
+                        ),
+                        SizedBox(height: 20,),
+                        Center(
+                          child: Container(
+                            height: 90,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(30)),
+                              border: Border.all(color: Colors.brown, width: 4),
+                            ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CustomChoiceChip(
+                                    label: "200 мл",
+                                    image: Image.asset("assets/images/icons/big_coffee_unselected.png", height: 20),
+                                    selected:  appState.selectedSize == 0,
+                                    onSelected: (bool selected) {
+                                      appState.selectItemSize(0);
+                                    },
+                                  ),
+                                  CustomChoiceChip(
+                                    label: "300 мл",
+                                    image: Image.asset("assets/images/icons/big_coffee_unselected.png", height: 33,),
+                                    selected: appState.selectedSize == 1,
+                                    onSelected: (bool selected) {
+                                      appState.selectItemSize(1);
+                                    },
+                                  ),
+                                  CustomChoiceChip(
+                                    label: '400 мл',
+                                    image: Image.asset("assets/images/icons/big_coffee_unselected.png", height: 40,),
+                                    selected: appState.selectedSize == 2,
+                                    onSelected: (bool selected) {
+                                      appState.selectItemSize(2);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )    
+                        ],
+                      ),
                     ),
-                  ),
+                ),
                 // Дополнительно
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -205,16 +213,17 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                       IconButton(
                         icon:  Icon(Icons.add),
                         onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
+                          BottomSheet(
+                            backgroundColor: Colors.white,
                             shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(20),
                                 topRight: Radius.circular(20),
                               ),
                             ),
-                            builder: (BuildContext context) {
-                              return Container();
+                            builder: bottomSheetBuilder,
+                            onClosing: () {
+                              
                             },
                           );
                         },
@@ -248,6 +257,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   )),
+                  Icon(Icons.wallet_giftcard, color: Colors.white,),
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -263,7 +273,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                           icon: Icon(Icons.remove),
                           color: Colors.brown
                         ),
-                        Padding(padding: EdgeInsets.symmetric(horizontal: 2), child: Text(appState.itemAmount.toString(), style: TextStyle(color: Colors.brown),)),
+                        Padding(padding: EdgeInsets.only(left: 10, right: 13), child: Text(appState.itemAmount.toString(), style: TextStyle(color: Colors.brown),)),
                         IconButton(onPressed: () => appState.increaseItemAmount(1), icon: Icon(Icons.add), color: Colors.brown)
                       ],
                     )
@@ -277,4 +287,14 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
       ),
     );
   }
+}
+
+Widget bottomSheetBuilder(BuildContext context) {
+  return Stack(
+    children: [
+      SingleChildScrollView(
+        //child: GridView(gridDelegate: Grid),
+      )
+    ],
+  );
 }

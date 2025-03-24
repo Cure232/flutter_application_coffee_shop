@@ -21,7 +21,8 @@ class MenuNavigationButton extends StatelessWidget {
         height: 50,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: isSelected ? Colors.brown : Colors.grey[300],
+          color: Colors.transparent,
+          /*
           boxShadow: const [
             BoxShadow(
               color: Colors.black26,
@@ -29,6 +30,7 @@ class MenuNavigationButton extends StatelessWidget {
               offset: Offset(0, 2),
             ),
           ],
+          */
         ),
         child: Icon(
           icon,

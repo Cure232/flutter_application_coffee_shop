@@ -41,7 +41,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void _scrollToSelected(int index) {
-    if (_isFullyVisible(index)) return;
+    //if (_isFullyVisible(index)) return;
 
     double screenWidth = MediaQuery.of(context).size.width;
     double itemWidth = 120.0;
@@ -83,6 +83,7 @@ class HomePageState extends State<HomePage> {
                       child: ChoiceChip(
                         key: _keys[index],
                         label: Text(appState.categories[index]),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         selected: appState.selectedCategoryIndex == index,
                         showCheckmark: false,
                         onSelected: (selected) {
@@ -94,13 +95,14 @@ class HomePageState extends State<HomePage> {
                         },
                         disabledColor: Colors.white,
                         selectedColor: Colors.brown,
+                        backgroundColor: Colors.white,
                         surfaceTintColor: Colors.transparent,
                         labelStyle: TextStyle(color: appState.selectedCategoryIndex == index ? Colors.white : Colors.black),
                         labelPadding: const EdgeInsets.symmetric(horizontal: 6.0),
                         padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        ) //Choise Chip
-                      ), // IntrinsicWidth
-                    ); //Padding
+                        )
+                      ),
+                    );
                   }
                 ),
               ),
@@ -115,6 +117,7 @@ class HomePageState extends State<HomePage> {
                   crossAxisCount: 2,
                   mainAxisSpacing: 16,
                   childAspectRatio: 0.8,
+                  mainAxisExtent: 280
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -132,8 +135,9 @@ class HomePageState extends State<HomePage> {
                           elevation: 4,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
+                              SizedBox(height: 4,),
                               Image.asset(appState.selectedCategoryProducts[index].image),
                               Container(
                                 padding: EdgeInsets.only(left: 6, right: 6, top: 6),
