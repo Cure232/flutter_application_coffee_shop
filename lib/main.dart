@@ -10,6 +10,7 @@ import 'product.dart';
 import 'home_page.dart';
 import 'navigation_buttons.dart';
 import 'favorites_page.dart';
+import 'profile_screen.dart';
 
 String productsJsonPath = "assets/products.json";
 String jsonResult = "";
@@ -217,7 +218,7 @@ class CoffeeMenuScreen extends StatelessWidget {
                           color: Colors.brown,
                         ),
                         onPressed: () {
-                          print('Profile pressed');
+                          ProfileScreen.show(context);
                         },
                       ),
                     ],
