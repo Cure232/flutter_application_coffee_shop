@@ -112,6 +112,16 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
+  void removeFromCart(CartItem cartItem) {
+    _cartItems.remove(cartItem);
+    notifyListeners();
+  }
+
+  void clearCart() {
+    _cartItems.clear();
+    notifyListeners();
+  }
+
 }
 
 
@@ -159,7 +169,6 @@ class CoffeeMenuScreen extends StatelessWidget {
     final List<Widget> pages = [
       const HomePage(),
       const FavoritesPage(),
-      const CartPage(),
     ];
 
     return Material(
@@ -266,7 +275,7 @@ class CoffeeMenuScreen extends StatelessWidget {
                       icon: Icons.shopping_cart,
                       isSelected: appState.selectedPage == 2,
                       onTap: () {
-                        appState.selectPage(2);
+                        CartPage.show(context);
                       },
                     ),
                   ],
