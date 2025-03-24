@@ -28,11 +28,15 @@ class Product {
     final isFavorite = json['is_favorite'] as bool? ?? false;
     final pricesMap = (json['prices'] as Map<String, dynamic>?)?.map(
           (key, value) => MapEntry(key, value.toString()),
-    ) ?? {};
+    );
+    if (pricesMap == null || pricesMap.isEmpty) {
+      throw FormatException('Product prices are required');
+    }
     final currency = json['currency'] as String? ?? '';
     final image = json['image'] as String? ?? '';
-    final description = json['description'] as String? ?? '';
-
+    // Если description отсутствует или null, используем "Lorem ipsum"
+    final description = json['description'] as String? ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+    
     return Product(
       name: name,
       categories: categories,

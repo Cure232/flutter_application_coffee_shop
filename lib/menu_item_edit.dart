@@ -230,6 +230,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                         ),
                       ),
+                      //Ряд выбора сиропа
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: IntrinsicHeight(
@@ -253,6 +254,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                   ],
                                 ),
                               ),
+                              //Карточка добавить сироп
                               Container(
                                 padding: EdgeInsets.all(20),
                                 decoration: BoxDecoration(
@@ -290,6 +292,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                           ),
                         ),
                       ),
+                      Container(padding: EdgeInsets.all(12), child: Text("Описание отсутствует. ${widget._product.description}"),)
                     ],
                   ),
                 ),
@@ -300,7 +303,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
             ),
           ),
 
-          //Цена и кол-во
+          //Кол-во и цена
           Positioned(
             bottom: 40, left: 40, right: 40,
             child: GestureDetector(

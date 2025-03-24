@@ -71,65 +71,80 @@ class CartPage extends StatelessWidget {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                child: Stack(
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(10),
-                                      child: Image.asset(
-                                        appState.cartItems[index].product.image,
-                                        width: 80,
-                                        height: 80,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        padding: const EdgeInsets.only(left: 6, right: 6, top: 6),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              appState.cartItems[index].product.name,
-                                              textAlign: TextAlign.left,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                leadingDistribution: TextLeadingDistribution.even,
-                                              ),
-                                            ),
-                                            Text(
-                                              "Кол-во: ${appState.cartItems[index].quantity}",
-                                              textAlign: TextAlign.left,
-                                              style: const TextStyle(
-                                                color: Colors.grey,
-                                                leadingDistribution: TextLeadingDistribution.even,
-                                              ),
-                                            ),
-                                            Text(
-                                              appState.cartItems[index].size,
-                                              textAlign: TextAlign.left,
-                                              style: const TextStyle(
-                                                color: Colors.grey,
-                                                leadingDistribution: TextLeadingDistribution.even,
-                                              ),
-                                            ),
-                                            Container(
-                                              alignment: Alignment.bottomRight,
-                                              margin: const EdgeInsets.only(right: 10),
-                                              child: Text(
-                                                "${appState.cartItems[index].product.prices[appState.cartItems[index].size]!}${appState.cartItems[index].product.currency}",
-                                                textAlign: TextAlign.right,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  leadingDistribution: TextLeadingDistribution.even,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Image.asset(
+                                            appState.cartItems[index].product.image,
+                                            width: 80,
+                                            height: 80,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
+                                        Expanded(
+                                          child: Container(
+                                            padding: const EdgeInsets.only(left: 6, right: 6, top: 6),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  appState.cartItems[index].product.name,
+                                                  textAlign: TextAlign.left,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    leadingDistribution: TextLeadingDistribution.even,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  "Кол-во: ${appState.cartItems[index].quantity}",
+                                                  textAlign: TextAlign.left,
+                                                  style: const TextStyle(
+                                                    color: Colors.grey,
+                                                    leadingDistribution: TextLeadingDistribution.even,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  appState.cartItems[index].size,
+                                                  textAlign: TextAlign.left,
+                                                  style: const TextStyle(
+                                                    color: Colors.grey,
+                                                    leadingDistribution: TextLeadingDistribution.even,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  alignment: Alignment.bottomRight,
+                                                  margin: const EdgeInsets.only(right: 10),
+                                                  child: Text(
+                                                    "${appState.cartItems[index].product.prices[appState.cartItems[index].size]!}${appState.cartItems[index].product.currency}",
+                                                    textAlign: TextAlign.right,
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      leadingDistribution: TextLeadingDistribution.even,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    //Удаление из корзины
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: IconButton(
+                                        icon: const Icon(Icons.close, color: Colors.black),
+                                        onPressed: () {
+                                          appState.removeFromCart(appState.cartItems[index]);
+                                        },
                                       ),
                                     ),
-                                  ],
+                                  ]
                                 ),
                               );
                             },
